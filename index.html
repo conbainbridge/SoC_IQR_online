@@ -34,6 +34,8 @@
     use_webaudio: false,
     on_finish: function(){
         jsPsych.data.displayData(); // Change to saving JSON
+        jsPsych.data.get().localSave('testrun.csv'); // !!! Edit this for file name
+        jsPsych.data.get().localSave('testrun.json')
     }
     });
 
@@ -99,6 +101,13 @@
         choices: ['Next']
     };
 
+    var welcomePlaceholder = {
+        type: jsPsychHtmlButtonResponse,
+        button_html: '<button class="jspsych-btn" style="margin-bottom: 10px">%choice%</button>',
+        stimulus: '<p align="center">CONSENT TEXT GOES HERE!!! (UCLA version is in code)</p>',
+        choices: ['Next']
+    };
+
     var microphone = {
         type: jsPsychInitializeMicrophone
     };
@@ -122,7 +131,8 @@
         type: jsPsychHtmlAudioResponse,
         stimulus: '<p><strong>Recording now...</strong></p>'+
         '<p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>',
-        recording_duration: 900000,
+        recording_duration: 300000, // Test length - shortened to 5 minutes
+        // recording_duration: 900000, // Full length for 15 minutes
         save_audio_url: true,
         data: {"trialType": "spoken"},
         show_done_button: false
@@ -148,8 +158,8 @@
                     }
                 ],
                 data: {"trialType": "typed"},
-                //trial_duration: 60000 // Shorter, for testing only
-                trial_duration: 600000
+                trial_duration: 300000, // Test length - shortened to 5 minutes
+                //trial_duration: 900000 // Full length for 15 minutes
             }
         ]
      }
@@ -1354,7 +1364,7 @@
 
     // Build out intro and initialization timeline
      timeline.push(
-         welcome
+         welcomePlaceholder
      );
 
      // Prepare condition - Add a trial that has both spoken and typed simultaneous to add into randomization
