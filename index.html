@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Streams of mind</title>
+    <link rel="stylesheet" type="text/css" href="./jspsych/dist/jspsych.css">
+    <script src="./jspsych/dist/jspsych.js"></script>
+    <script src="./jspsych/dist/custom_plugins/plugin-survey-keytrack.js"></script>
+    <script src="./jspsych/dist/custom_plugins/plugin-survey-multi-choice-center.js"></script>
+    <script src="./jspsych/dist/custom_plugins/plugin-ranking.js"></script>
+
+    <script src="./jspsych/dist/plugin-html-keyboard-response.js"></script>
+    <script src="./jspsych/dist/plugin-html-button-response.js"></script>
+    <script src="./jspsych/dist/plugin-audio-button-response.js"></script>
+    <script src="./jspsych/dist/plugin-audio-keyboard-response.js"></script>
+
+    <script src="./jspsych/dist/plugin-initialize-microphone.js"></script>
+    <script src="./jspsych/dist/plugin-html-audio-response.js"></script>
+
+    <script src="./jspsych/dist/plugin-survey-multi-select.js"></script>
+    <script src="./jspsych/dist/plugin-survey-multi-choice.js"></script>
+    <script src="./jspsych/dist/plugin-survey-likert.js"></script>
+    <script src="./jspsych/dist/plugin-survey-text.js"></script>
+    <script src="./jspsych/dist/custom_plugins/plugin-survey-text-dropdown.js"></script>
+    <script src="./jspsych/dist/custom_plugins/plugin-survey-text-number.js"></script>
+
+  </head>
+  <body></body>
+
+<script>
+    // Initialize JsPsych
+    // Maybe can add data parameter to all trials that inputs condition?
+    var jsPsych = initJsPsych({
+    use_webaudio: false,
+    on_finish: function(){
+        jsPsych.data.displayData(); // Change to saving JSON
+    }
+    });
+
+    var timeline = [];
+
+    var condition_array = ['typed', 'spoken'];
+
+    // var condition = jsPsych.randomization.shuffle(condition_array)[0]; 
+    var condition = 'typed'
+
+    /* ~~~ CONSENT ~~~ */
+    // EDIT THIS! Include inline form with the proper study info sheet
+    var welcome = {
+        type: jsPsychHtmlButtonResponse,
+        button_html: '<button class="jspsych-btn" style="margin-bottom: 10px">%choice%</button>',
+        stimulus: '<p align="center">Before you decide to participate, please read the following information:</p>'+
+        '<p align="center">University of California, Los Angeles<br />'+
+        '<b>RESEARCH INFORMATION SHEET</b><br />'+
+        'Language in streams of consciousness</p>'+
+        '<p align="left"><b>INTRODUCTION</b></p>'+
+        '<p align="left">Constance Bainbridge and Dr. Rick Dale from the Department of Communication at the University of California, Los Angeles are conducting a research study. You were selected as a possible participant in this study because you are 18+ and are included in the Communication Study Pool at UCLA.  Your participation in this research study is voluntary.</p>'+
+        '<p align="left"><b>WHAT SHOULD I KNOW ABOUT A RESEARCH STUDY?</b></p>'+
+        '<p align="left"><ul><li align="left">This research study will be explained to you in detail in writing.</li>'+
+        '<li align="left">Whether or not you take part is up to you.</li>'+
+        '<li align="left">You can choose not to take part.</li>'+
+        '<li align="left">You can agree to take part and later change your mind.</li>'+
+        '<li align="left">Your decision will not be held against you.</li>'+
+        '<li align="left">You can ask all the questions you want before you decide.</li></ul></p>'+
+        '<p align="left"><b>WHY IS THIS RESEARCH BEING DONE?</b></p>'+
+        '<p align="left">The goal of this study is to explore your thoughts, feelings, and experiences by engaging in a stream-of-consciousness activity. This website will capture a snapshot of your thought process as you’re sharing your thoughts.</p>'+
+        '<p align="left"><b>HOW LONG WILL THE RESEARCH LAST AND WHAT WILL I NEED TO DO?</b></p>'+
+        '<p align="left">Participation will take a total of approximately 60 minutes or less and you will be awarded 1 course credit.</p>'+
+        '<p align="left">If you volunteer to participate in this study, the researcher will ask you to do the following:</p>'+
+        '<p align="left"><ul><li align="left">Share your thoughts, feelings, and experiences in a stream of consciousness style task.</li>'+
+        '<li align="left">Answer a few questions about yourself, including questions about your demographics and surveys about how you think and feel.</li>'+
+        '<li align="left">The entire study will take place online in this interface, and there will be a link at the end to return to SONA to automatically credit your account with course credit for study completion.</li></ul>'+
+        '<p align="left"><b>ARE THERE ANY RISKS IF I PARTICIPATE?</b></p>'+
+        '<p align="left">No potential risks or direct discomforts are anticipated. Because you may write whatever you feel in the study prompts, you may experience some discomfort depending on the topics you explore in your writing.</p>'+
+        '<p align="left"><b>ARE THERE ANY BENEFITS IF I PARTICIPATE?</b></p>'+
+        '<p align="left">You will not directly benefit from your participation in the research.</p>'+
+        '<p align="left">The results of the research may help us to better understand the thoughts, feelings, and experiences people choose to write about under a stream of consciousness format.</p>'+
+        '<p align="left">If you choose not to participate, you may exit out of the study at any point by closing the webpage. Your alternative to participating in this research study is to not participate.</p>'+
+        '<p align="left"><b>HOW WILL INFORMATION ABOUT ME AND MY PARTICIPATION BE KEPT CONFIDENTIAL?</b><p>'+
+        '<p align="left">The researchers will do their best to make sure that your private information is kept confidential. Information about you will be handled as confidentially as possible, but participating in research may involve a loss of privacy and the potential for a breach in confidentiality. Study data will be physically and electronically secured.  As with any use of electronic means to store data, there is a risk of breach of data security.</p>'+
+        '<p align="left"><b>Use of personal information that can identify you:</b><br />Personal information will be separated from your responses. Participant data will be analyzed altogether. You will have the option to elect to have your data added to an online, public repository at the end - <i>only if you are comfortable doing so</i>.'+
+        '<p align="left"><b>How information about you will be stored:</b><br />Data will be locally stored on the researchers\' computers and separated from identifying information. The filenames will not have identifying information in them. Data will be analyzed all together, such that data will not be linked on the individual level.</p>'+
+        '<p align="left"><b>People and agencies that will have access to your information:</b><br />The research team and authorized UCLA personnel may have access to study data and records to monitor the study.  Research records provided to authorized, non-UCLA personnel will not contain identifiable information about you. Publications and/or presentations that result from this study will not identify you by name.</p>'+
+        '<p align="left">Employees of the University may have access to identifiable information as part of routine processing of your information, such as lab work or processing credits. However, University employees are bound by strict rules of confidentiality.</p>'+
+        '<p align="left"><b>How long information from the study will be kept:</b></p>'+
+        '<p align="left">The data relating to your personally identifying information (name, UID, and/or email address) will be kept for 10 years.</p>'+
+        '<p align="left"><b>USE OF DATA FOR FUTURE RESEARCH</b></p>'+
+        '<p align="left">Your de-identified study data may be kept for use in future research.</p>'+
+        '<p align="left"><b>WHO CAN I CONTACT IF I HAVE QUESTIONS ABOUT THIS STUDY?</b></p>'+
+        '<p align="left"><b>The research team:</b><br />'+
+        'If you have any questions, comments or concerns about the research, you can talk to the one of the researchers. Please contact either: cbainbridge@ucla.edu or rdale@ucla.edu'+
+        '<p align="left"><b>UCLA Office of the Human Research Protection Program (OHRPP):</b><br />'+
+        'If you have questions about your rights as a research subject, or you have concerns or suggestions and you want to talk to someone other than the researchers, you may contact the UCLA OHRPP by phone: (310) 206-2040; by email: participants@research.ucla.edu or by mail: Box 951406, Los Angeles, CA 90095-1406.</p>'+
+        '<p align="left"><b>WHAT ARE MY RIGHTS IF I TAKE PART IN THIS STUDY?</b></p>'+
+        '<p align="left"><ul><li align="left">You can choose whether or not you want to be in this study, and you may withdraw your consent and discontinue participation at any time.</li>'+
+        '<li align="left">Whatever decision you make, there will be no penalty to you, and no loss of benefits to which you were otherwise entitled.</li>'+
+        '<li align="left">You may refuse to answer any survey questions that you do not want to answer and still remain in the study.</li></ul></p>'+
+        '<p align="left"><b><i>You may save a copy of this information to keep for your records.</i></b></p>',
+        choices: ['Next']
+    };
+
+    var microphone = {
+        type: jsPsychInitializeMicrophone
+    };
+
+    var mic_permission = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p>In order to complete this study, you will need to give access to the microphone on your device. When you click grant access, a popup will show the microphone information. Please make sure the audio is being picked up successfully - you will see a slider moving to the volume of the sound being picked up. You can also use this window to select which microphone to use (built-in, external, etc.). You will see this screen twice.</p>',
+        choices: ['Grant access']
+    };
+
+    /* ~~~ TRIALS ~~~ */
+    // Intro
+    var introSpoken = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p>In this task, you will be <strong>speaking</strong> your thoughts as they flow out in a stream of consciousness - whatever comes to mind.</p><p><b>Please speak as though you were thinking aloud - don\'t worry about being grammatically correct or speaking in complete sentences unless it feels natural to your thought process.</b></p><p>You will have 15 minutes to share as much as you want.</p>'+
+        '<p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>',
+        choices: ['Click here to begin recording']
+    };
+    // Recording
+    var recorder = {
+        type: jsPsychHtmlAudioResponse,
+        stimulus: '<p><strong>Recording now...</strong></p>'+
+        '<p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>',
+        recording_duration: 900000,
+        save_audio_url: true,
+        data: {"trialType": "spoken"},
+        show_done_button: false
+    };
+
+     var introTyped = {
+        timeline: [
+            {
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<p>In this task, you will be <strong>typing</strong> your thoughts as they flow out in a stream of consciousness - whatever comes to mind.</p><p><b>Please speak as though you were thinking aloud - don\'t worry about being grammatically correct or typing in complete sentences unless it feels natural to your thought process.</b></p><p>You will have 15 minutes to share as much as you want.</p>'+
+                '<p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>',
+                choices: ['Click here to begin']
+            },
+            {
+                type: JsPsychSurveyKeytrack,
+                questions: [
+                    {
+                        prompt: '<p>Please <b>type</b> your thoughts as they flow out in a stream-of-consciousness. Share as though you were thinking aloud in free form. Don\'t worry about being grammatically correct or using complete sentences unless it feels natural to your thought process.</p>'+
+                        '<p>Try not to stop sharing unless your thoughts have stopped flowing.</p>'+
+                        '<p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>',
+                        rows: 50,
+                        columns: 100,
+                    }
+                ],
+                data: {"trialType": "typed"},
+                //trial_duration: 60000 // Shorter, for testing only
+                trial_duration: 600000
+            }
+        ]
+     }
+
+
+    /* ~~~ SURVEY ~~~ */
+    // Questions intro
+
+    // Demographics
+    var langList = [
+        'English', 'Abenaki', 'Abkhaz', 'Adyghe', 'Afrikaans', 'Ainu', 'Aklanon', 'Albanian', 'Algerian', 'American Sign Language', 'Apache', 'Arabic', 'Aragonese', 'Aramaic', 'Armenian', 'Avestan', 'Ayapathu', 'Aymara', 'Azeri', 'Balinese', 'Bamwe', 'Bantu', 'Basa', 'Basque', 'Belarusian', 'Bemba', 'Bengali', 'Berber', 'Betawi', 'Bicol', 'Bisaya', 'Bobangi', 'Bosnian', 'Brahui', 'Breton', 'Butuanon', 'Bukusu', 'Bulgarian', 'Burmese', 'Carib', 'Catalan', 'Catawba', 'Cayuga', 'Cebuano', 'Chamorro', 'Chechen', 'Cherokee', 'Chewa', 'Cheyenne', 'Chickasaw', 'Chinese/Cantonese/Yue', 'Chinese/Danzhou', 'Chinese/Gan', 'Chinese/Hakka', 'Chinese/Hokkien', 'Chinese/Mandarin', 'Chinese/Min Bei', 'Chinese/Min Dong', 'Chinese/Min Zhong', 'Chinese/Pu Xian', 'Chinese/Qiong Wen', 'Chinese/Shao Jiang', 'Chinese/Shaozhou Tuhua', 'Chinese/Taiwanese/Min Nan/Hokkien', 'Chinese/Wu/Shanghainese', 'Chinese/Xiang/Hunanese', 'Chinese/Xianghua', 'Chinese/Yue', 'Chinook', 'Ch\'ol', 'Chorti', 'Cispa', 'Coptic', 'Cornish', 'Corsican', 'Cree', 'Creole', 'Croatian', 'Czech', 'Danish', 'Delaware', 'Demonh\'ka', 'Denya', 'Duma', 'Dutch', 'Eggon', 'Ejagham', 'Ekegusii', 'Emakua', 'Eskimo', 'Esperanto', 'Estonian', 'Ewe', 'Fang', 'Faroese', 'Farsi', 'Finnish', 'Flemish', 'Frankish', 'French', 'Frisian', 'Fulfulde', 'Gaelic', 'Galician', 'Gaulish', 'Gamilaraay', 'Ganda', 'Gbari', 'Georgian', 'German', 'Gevove', 'Gilbertese', 'Ginyama', 'Gothic', 'Greek', 'Guarani', 'Gujarati', 'Gullah', 'Haida', 'Hakka', 'Hawaiian', 'Hausa', 'Hiligaynon', 'Hebrew', 'Hmong', 'Hindi', 'Hittite', 'Holoholo', 'Hungarian', 'Icelandic', 'Igbo', 'Ilongo', 'Indonesian', 'Ingush', 'Interlingua', 'Inuktitut', 'Inzebi', 'Irish', 'Ishkashmi', 'Italian', 'Jangshung', 'Japanese', 'Jita', 'Kalanga', 'Kannada', 'Kapampangan', 'Karelian', 'Kamviri', 'Karuk', 'Kashubian', 'Katcha', 'Kazakh', 'Kerewe', 'Khakas', 'Khmer', 'Khowar', 'Kiga', 'Kinyarwanda', 'Kituba', 'Klallam', 'Konkani', 'Korean', 'Koromfé', 'Koyo', 'Kurdish', 'Kyrgyz', 'Lao', 'Lakhota', 'Latgalian', 'Latin', 'Latvian', 'Lingala', 'Lithuanian', 'Livonian', 'Lojban', 'Lozi', 'Luxembourgish', 'Luwian', 'Lydian', 'Macedonian', 'Malagasy', 'Malay', 'Maliseet', 'Malayalam', 'Maltese', 'Mambwe', 'Manchu', 'Mandinka', 'Manx', 'Maori', 'Mapudungun', 'Marathi', 'Masaba', 'Mayan', 'Mayangna', 'Mawu', 'Miami', 'Michif', 'Miskitu', 'Mixtec', 'Mohawk', 'Mongolian', 'Mpongwe', 'Nahuatl', 'Nande', 'Nanticoke', 'Nauruan', 'Navajo', 'Ndebele', 'Nepalese', 'Newari', 'Nhirrpi', 'Norwegian', 'Nyambo', 'Nyamwezi', 'Occitan', 'Ojibwe', 'Olkola', 'Olutec', 'Onondaga', 'Oriya', 'Oscan', 'Oykangand', 'Pahlavi', 'Pakahn', 'Pali', 'Papiamento', 'Pashto', 'Pende', 'Passamdy', 'Phrygian', 'Pirahã', 'Polish', 'Popoluca', 'Portuguese', 'Potawatomi', 'Pulaar', 'Punjabi', 'Quechua', 'Quenya', 'Rapa Nui', 'Rasta', 'Rejang', 'Romani', 'Romanian', 'Roviana', 'Rotuman', 'Russian', 'Saanich', 'Saami', 'Samoan', 'Sanskrit', 'Sardinian', 'Scots', 'Serbian', 'Seri', 'Sherpa', 'Shi', 'Sina Bidoyoh', 'Shona', 'Shoshoni', 'Sindarin', 'Sinhalese', 'Slovak', 'Slovene', 'Sogdian', 'Somali', 'Sorbian', 'Spanish', 'Sranan', 'Sûdovian', 'Sumerian', 'Swabian', 'Swahili', 'Swedish', 'Swiss German', 'Tagalog', 'Tamasheq', 'Tahitian', 'Taino', 'Tajik', 'Tamazight', 'Tamil', 'Tarahumara', 'Tarok', 'Tatar', 'Telugu', 'Tetan', 'Thai', 'Tibetan', 'Tlingit', 'Tocharian', 'Tongan', 'Turkish', 'Turkmen', 'Twi', 'Ukrainian', 'Ulwa', 'Umbrian', 'Üqoi', 'Urdu', 'Uyghur', 'Uzbek', 'Venda', 'Veps', 'Vietnamese', 'Votic', 'Wagiman', 'Walloon', 'Warlpiri', 'Welsh', 'Wolof', 'Wyandot', 'Xhosa', 'Yaka', 'Yao', 'Yemba', 'Yiddish', 'Yoruba', 'Zarma', 'Zoque', 'Zulu', 'Other'
+    ];
+
+    var surveyIntro = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: '<p align="center">Now we have a few questions about you.</p><p></p><br>',
+      choices: ['Next']
+    };
+
+    var demographics = {
+      timeline: [
+          {
+              type: SurveyTextNumPlugin,
+              questions: [{ prompt: '<p align="center">How old are you?</p>', min_number: 18 }],
+              data: {"trialType": "age"},
+          },
+          {
+              type: jsPsychHtmlButtonResponse,
+              stimulus: '<p align="center">What is your gender?</p>',
+              prompt: '',
+              choices: ['Woman', 'Man', 'Other', 'Prefer not to answer'],
+              data: {"trialType": "gender"}
+          }
+      ]
+    };
+
+    var language = {
+        type: jsPsychSurveyTextDropdown,
+        questions: [
+            {
+            prompt: '<p align="center">What is your first/native language?</p>',
+            choices: langList
+            }
+        ],
+        data: {"trialType": "nativeLang"}
+    };
+
+    // Experience questions
+    var practice = { // Note: this has more options than SoMod
+        type: jsPsychSurveyMultiSelect,
+        questions: [
+            {
+                prompt: '<p align="center">Do you engage in any of the following practices?</p>',
+                options: ['Therapy', 'Prayer', 'Mindfulness', 'Meditation', 'Journaling','Spoken affirmations', 'Talking into a mirror'],
+                horizontal: true,
+                required: false,
+                name: 'practice'
+            },
+        ],
+        data: { "trialType": "practice"}
+    };
+
+    var mindactive = { // Note: this has more options than SoMod
+        type: jsPsychSurveyMultiSelect,
+        questions: [
+            {
+                prompt: '<p align="center">When do you feel your mind is most active? Select all that apply.</p>',
+                options: ['In the morning', 'In the shower', 'In the car', 'At night', 'When trying to fall asleep'],
+                horizontal: true,
+                required: false,
+                name: 'mindactive'
+            },
+        ],
+        data: { "trialType": "practice"}
+    };
+
+// o Who did you feel you were directing your thoughts to in your streams-of-
+// consciousness?
+// o Do you believe anyone could hear you during the tasks?
+
+    var guiltGeneral = {
+        type: jsPsychSurveyMultiChoice,
+        questions: [
+            {
+                prompt: '<p align="center">How often do you feel guilty about your thoughts?</p>',
+                options: ['Always', 'Most of the time', 'Some of the time', 'Never'],
+                horizontal: true,
+                required: false,
+                name: 'guiltGeneral'
+            },
+        ],
+        data: { "trialType": "guiltGeneral"}
+    };
+    var guiltTasks = {
+        type: jsPsychSurveyMultiChoice,
+        questions: [
+            {
+                prompt: '<p align="center">Did you ever feel guilty about any thoughts you had during the task (regardless of whether you shared them or not)?</p>',
+                options: ['Yes', 'No'],
+                horizontal: true,
+                required: false,
+                name: 'guiltTasks'
+            },
+        ],
+        data: { "trialType": "guiltTasks"}
+    };
+    var comfort = {
+        type: jsPsychSurveyMultiChoice,
+        questions: [
+            {
+                prompt: '<p align="center">How comfortable were you expressing your thoughts in the speaking aloud task?</p>',
+                options: ['Very comfortable', 'Somewhat comfortable', 'Somewhat uncomfortable', 'Very uncomfortable'],
+                horizontal: true,
+                required: false,
+                name: 'comfort'
+            },
+        ],
+        data: { "trialType": "comfort"}
+    };
+
+    var whoTo = {
+        type: jsPsychSurveyMultiSelect,
+        questions: [
+            {
+                prompt: '<p align="center">Who did you feel you were directing your thoughts to in your streams-of-consciousness during the task?</p>',
+                options: ['Self', 'The researchers', 'Others who may be nearby', 'Imaginary audience', 'Imaginary specific individual', 'A higher power',  'No one'],
+                horizontal: true,
+                required: false,
+                name: 'whoTo'
+            },
+        ],
+        data: { "trialType": "whoTo"}
+    };
+    var overheard = {
+        type: jsPsychSurveyMultiChoice,
+        questions: [
+            {
+                prompt: '<p align="center">Do you believe anyone could hear you during the tasks?</p>',
+                options: ['Yes', 'No'],
+                horizontal: true,
+                required: false,
+                name: 'overheard'
+            },
+        ],
+        data: { "trialType": "overheard"}
+    };
+
+    var researchImpact = {
+        type: jsPsychSurveyMultiChoice,
+        questions: [
+            {
+                prompt: '<p align="center">How impacted, if at all, did you feel you were when expressing yourself by knowing researchers may later observe your thoughts?</p>',
+                options: ['Very impacted', 'Somewhat impacted', 'A little impacted', 'Not impacted'],
+                horizontal: true,
+                required: false,
+                name: 'researchImpact'
+            },
+        ],
+        data: { "trialType": "researchImpact"}
+    };
+
+    // Big Five
+    var bigFive = {
+        type: jsPsychSurveyMultiChoiceC,
+        preamble: '<p align="left">Here are a number of characteristics that may or may not apply to you. For example, do you agree that you are someone who likes to spend time with others? Please write a number next to each statement to indicate the extent to which you agree or disagree with that statement.</p>'+
+        '<p><table align="center">'+
+            '<tr>'+
+                '<th style="padding:10px">Disagree strongly</th><th style="padding:10px">Disagree a little</th><th style="padding:10px">Neither agree nor disagree</th><th style="padding:10px">Agree a little</th><th style="padding:10px">Agree strongly</th>'+
+            '</tr>'+
+            '<tr>'+
+                '<td>1</td><td>2</td><td>3</td><td>4</td><td>5</td>'+
+            '</tr>'+
+        '</table></p>'+
+        '<p><u>I see myself as someone who...</u></p>',
+        questions: [
+            {
+                prompt: '1. Is talkative',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big1'
+            },
+            {
+                prompt: '2. Tends to find fault in others',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big2'
+            },
+            {
+                prompt: '3. Does a thorough job',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big3'
+            },
+            {
+                prompt: '4. Is depressed, blue',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big4'
+            },
+            {
+                prompt: '5. Is original, comes up with new ideas',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big5'
+            },
+            {
+                prompt: '6. Is reserved',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big6'
+            },
+            {
+                prompt: '7. Is helpful and unselfish with others',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big7'
+            },
+            {
+                prompt: '8. Can be somewhat careless',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big8'
+            },
+            {
+                prompt: '9. Is relaxed, handles stress well',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big9'
+            },
+            {
+                prompt: '10. Is curious about many different things',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big10'
+            },
+            {
+                prompt: '11. Is full of energy',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big11'
+            },
+            {
+                prompt: '12. Starts quarrels with others',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big12'
+            },
+            {
+                prompt: '13. Is a reliable worker',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big13'
+            },
+            {
+                prompt: '14. Can be tense',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big14'
+            },
+            {
+                prompt: '15. Is ingenious, a deep thinker',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big15'
+            },
+            {
+                prompt: '16. Generates a lot of enthusiasm',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big16'
+            },
+            {
+                prompt: '17. Has a forgiving nature',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big17'
+            },
+            {
+                prompt: '18. Tends to be disorganized',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big18'
+            },
+            {
+                prompt: '19. Worries a lot',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big19'
+            },
+            {
+                prompt: '20. Has an active imagination',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big20'
+            },
+            {
+                prompt: '21. Tends to be quiet',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big21'
+            },
+            {
+                prompt: '22. Is generally trusting',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big22'
+            },
+            {
+                prompt: '23. Tends to be lazy',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big23'
+            },
+            {
+                prompt: '24. Is emotionally stable, not easily upset',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big24'
+            },
+            {
+                prompt: '25. Is inventive',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big25'
+            },
+            {
+                prompt: '26. Has an assertive personality',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big26'
+            },
+            {
+                prompt: '27. Can be cold and aloof',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big27'
+            },
+            {
+                prompt: '28. Perseveres until the task is finished',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big28'
+            },
+            {
+                prompt: '29. Can be moody',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big29'
+            },
+            {
+                prompt: '30. Values artistic, aesthetic experiences',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big30'
+            },
+            {
+                prompt: '31. Is sometimes shy, inhibited',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big31'
+            },
+            {
+                prompt: '32. Is considerate and kind to almost everyone',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big32'
+            },
+            {
+                prompt: '33. Does things efficiently',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big33'
+            },
+            {
+                prompt: '34. Remains calm in tense situations',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big34'
+            },
+            {
+                prompt: '35. Prefers work that is routine',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big35'
+            },
+            {
+                prompt: '36. Is outgoing, sociable',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big36'
+            },
+            {
+                prompt: '37. Is sometimes rude to others',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big37'
+            },
+            {
+                prompt: '38. Make plans and follows through with them',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big38'
+            },
+            {
+                prompt: '39. Gets nervous easily',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big39'
+            },
+            {
+                prompt: '40. Likes to reflect, play with ideas',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big40'
+            },
+            {
+                prompt: '41. Has few artistic interests',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big41'
+            },
+            {
+                prompt: '42. Likes to cooperate with others',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big42'
+            },
+            {
+                prompt: '43. Is easily distracted',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big43'
+            },
+            {
+                prompt: '44. Is sophisticated in art, music, or literature',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'Big44'
+            },
+        ]
+    }
+
+    // Internal Representations Questionnaire (IQR)
+    var IQR = {
+        type: jsPsychSurveyMultiChoiceC,
+        preamble: '<p align="left">Please answer the following questions about yourself. For each of the statements, indicate how much each statement is like you by using the following scale:</p>'+
+        '<p><table align="center">'+
+            '<tr>'+
+                '<th style="padding:10px">Strongly disagree</th>'+
+                '<th style="padding:10px">Disagree</th>'+
+                '<th style="padding:10px">Neither agree nor disagree</th>'+
+                '<th style="padding:10px">Agree</th>'+
+                '<th style="padding:10px">Strongly agree</th>'+
+            '</tr>'+
+            '<tr>'+
+                '<td>1</td><td>2</td><td>3</td><td>4</td><td>5</td>'+
+            '</tr>'+
+        '</table></p>'+
+        '<p align="left">Please be as honest as you can throughout, and try not to let your responses to one question influence your response to other questions. There are no right or wrong answers.</p>',
+        data: { "trialType": "IQR"},
+        randomize_question_order: true,
+        questions: [
+            {
+                prompt: 'I often enjoy the use of mental pictures to reminisce.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-viz1'
+            },
+            {
+                prompt: 'I can close my eyes and easily picture a scene that I have experienced',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-viz2'
+            },
+            {
+                prompt: 'My mental images are very vivid and photographic.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-viz3'
+            },
+            {
+                prompt: 'The old saying "A picture is worth a thousand words" is certainly true for me.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-viz4'
+            },
+            {
+                prompt: 'When I think about someone I know well, I instantly see their face in my mind.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-viz5'
+            },
+            {
+                prompt: 'I often use mental images or pictures to help me remember things.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-viz6'
+            },
+            {
+                prompt: 'My memories are mainly visual in nature.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-viz7'
+            },
+            {
+                prompt: 'When traveling to get to somewhere I tend to think more visually than verbally.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-viz8'
+            },
+            {
+                prompt: 'If I talk to myself in my head it is usually accompanied by visual imagery.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-viz9'
+            },
+            {
+                prompt: 'If I imagine my memories visually they are more often moving than static.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-viz10'
+            },
+            {
+                prompt: 'When I think about someone I know well, I instantly hear their voice in my mind.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-verb1'
+            },
+            {
+                prompt: 'I think about problems in my mind in the form of a conversation with myself.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-verb2'
+            },
+            {
+                prompt: 'If I am walking somewhere by myself, I often have a silent conversation with myself.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-verb3'
+            },
+            {
+                prompt: 'If I am walking somewhere by myself, I frequently think of conversations that I\'ve recently had.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-verb4'
+            },
+            {
+                prompt: 'My inner speech helps my imagination.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-verb5'
+            },
+            {
+                prompt: 'I tend to think things through verbally when I am relaxing.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-verb6'
+            },
+            {
+                prompt: 'When thinking about a social problem, I often talk it through in my head.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-verb7'
+            },
+            {
+                prompt: 'I like to give myself some down time to talk through thoughts in my mind.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-verb8'
+            },
+            {
+                prompt: 'I hear words in my \"mind\'s ear\" when I think.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-verb9'
+            },
+            {
+                prompt: 'I rarely vocalize thoughts in my mind.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-verb10-R'
+            },
+            {
+                prompt: 'I often talk to myself internally while watching TV.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-verb11'
+            },
+            {
+                prompt: 'My memories often involve conversations I\'ve had.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-verb12'
+            },
+            {
+                prompt: 'I can easily imagine and mentally rotate three-dimensional geometric figures.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-mm1'
+            },
+            {
+                prompt: 'I can easily choose to imagine this sentence in my mind pronounced unnaturally slowly.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-mm2'
+            },
+            {
+                prompt: 'In school, I had no problems with geometry.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-mm3'
+            },
+            {
+                prompt: 'It is easy for me to imagine the sensation of licking a brick.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-mm4'
+            },
+            {
+                prompt: 'I find it difficult to imagine how a three-dimensional geometric figure would exactly look like when rotated.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-mm5-R'
+            },
+            {
+                prompt: 'I can easily imagine someone clearly talking, and then imagine the same voice with a heavy cold.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-mm6'
+            },
+            {
+                prompt: 'I think I have a large vocabulary in my native language compared to others.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-mm7'
+            },
+            {
+                prompt: 'I can easily imagine the sound of a trumpet getting louder.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-mm8'
+            },
+            {
+                prompt: 'I find it easy to decide if words rhyme by seeing their spelling in my mind\'s eye..',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-text1'
+            },
+            {
+                prompt: 'When I hear someone talking, I see words written down in my mind.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-text2'
+            },
+            {
+                prompt: 'I see words in my \"mind\'s eye\" when I think.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-text3'
+            },
+            {
+                prompt: 'When I am introduced to someone for the first time, I imagine what their name would look like when written down.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-text4'
+            },
+            {
+                prompt: 'A strategy I use to help me remember written material is imagining what the writing looks like.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-text5'
+            },
+            {
+                prompt: 'I hear a running summary of everything I am doing in my head.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-text6'
+            },
+            {
+                prompt: 'I rehearse in my mind how someone might respond to a text message before I send it.',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5'
+                ],
+                horizontal: true,
+                name: 'IQR-text7'
+            }
+        ]
+    }
+
+    // Free text experience
+    var freeField = {
+        type: jsPsychSurveyText,
+        questions: [
+            {prompt: 'Is there anything else you want to share about your experience doing these tasks?', name: 'freeField', rows: 50, columns: 100}
+        ]
+    }
+
+    var dataLevels = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `<p>What is your preference and comfort level for how your data from this study is used or seen?</p><p>Unless you choose to have your data deleted, results would be reported in the aggregate across many participants. In cases where you are comfortable with anyone seeing your data, we may include excerpts for demonstration sake or researchers may download it without requesting special access directly from the research team. We will not include identifiable information outside of what you may have written in your streams-of-consciousness.</p>`,
+        choices: ['My data should only be available for researchers to use - do NOT add it to the online public database.', 'You may add my data to a public, open-source database or share excerpts - anyone could potentially see it', '<span style="color:red">Please delete my data - I don\'t want anyone using or seeing it.</span>'],
+        margin_vertical: '8px',
+    }
+
+    // var urlParam = window.location.search;
+    // var userID = urlParam.replace('?id=', '');
+
+    var debrief = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `<p>Thank you for participating in this study!</p><p>Be sure to click the button below to submit your participation for SONA credit.</p>`+
+        `<p>In this study, we\’re interested in understanding how people think about the past, present, and future when considering the COVID-19 pandemic. We're also interested in how differences between individuals may be predictive of how they write in a stream of consciousness style format.</p><p>If you have any questions or comments about this research, you may contact the researchers at cbainbridge@ucla.edu.</p><p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>`,
+        choices: ['Return to SONA for credit'],
+    }
+
+    /* ~~~ END ~~~ */
+
+
+
+    // Build out intro and initialization timeline
+     timeline.push(
+         welcome
+     );
+
+     // Prepare condition - Add a trial that has both spoken and typed simultaneous to add into randomization
+     if (condition == 'spoken') {
+         timeline.push(
+             mic_permission,
+             microphone,
+             introSpoken,
+             recorder,
+             // replay_spoken
+         );
+     } else if (condition == 'typed') {
+         timeline.push(
+               introTyped
+         );
+     }
+
+    // Concluding questions
+    timeline.push(
+        surveyIntro,
+        demographics,
+        //journal,
+        //journalConditional
+    );
+
+    var scalesArray = [IQR, bigFive];
+    var scalesArrayR = jsPsych.randomization.shuffle(scalesArray);
+    timeline.push(scalesArrayR[0], scalesArrayR[1]);
+
+    // // End of experiment
+    timeline.push(
+        dataLevels,
+        freeField,
+        debrief
+    );
+
+    // Experiment logic
+    // let sona_id = jsPsych.data.urlVariables()['sona_id']
+
+    jsPsych.run(timeline)
+	</script>
+</html>
