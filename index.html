@@ -31,20 +31,21 @@
     // Initialize JsPsych
     // Maybe can add data parameter to all trials that inputs condition?
     var jsPsych = initJsPsych({
-    use_webaudio: false,
-    on_finish: function(){
-        jsPsych.data.displayData(); // Change to saving JSON
-        jsPsych.data.get().localSave('testrun.csv'); // !!! Edit this for file name
-        jsPsych.data.get().localSave('testrun.json')
-    }
+        use_webaudio: false,
+        on_finish: function(){
+            jsPsych.data.displayData(); // Change to saving JSON
+            jsPsych.data.get().localSave('csv', `testrun_${Date.now()}.csv`);
+            jsPsych.data.get().localSave('json', `testrun_${Date.now()}.json`);
+        }
     });
 
     var timeline = [];
 
     var condition_array = ['typed', 'spoken'];
 
-    // var condition = jsPsych.randomization.shuffle(condition_array)[0]; 
-    var condition = 'typed'
+    var condition = jsPsych.randomization.shuffle(condition_array)[0]; 
+    // var condition = 'typed'
+    console.log(condition)
 
     /* ~~~ CONSENT ~~~ */
     // EDIT THIS! Include inline form with the proper study info sheet
@@ -131,7 +132,7 @@
         type: jsPsychHtmlAudioResponse,
         stimulus: '<p><strong>Recording now...</strong></p>'+
         '<p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>',
-        recording_duration: 300000, // Test length - shortened to 5 minutes
+        recording_duration: 60000, // Test length - shortened to 5 minutes
         // recording_duration: 900000, // Full length for 15 minutes
         save_audio_url: true,
         data: {"trialType": "spoken"},
@@ -158,7 +159,7 @@
                     }
                 ],
                 data: {"trialType": "typed"},
-                trial_duration: 300000, // Test length - shortened to 5 minutes
+                trial_duration: 60000, // Test length - shortened to 5 minutes
                 //trial_duration: 900000 // Full length for 15 minutes
             }
         ]
